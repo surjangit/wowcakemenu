@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOW CAKE – Artisan Cakes & Pastries</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #fdf6e8;
+  --parchment: #f0dbb5;
+  --gold: #c49a0f;
+  --gold-light: #e2b84a;
+  --gold-shine: #f5d76e;
+  --gold-dim: #8a6b0a;
+  --brown-dark: #2a1205;
+  --brown-mid: #5c2d0e;
+  --brown-light: #8b5a2b;
+  --text-dark: #1e0e02;
+  --text-mid: #5a3010;
+  --shadow: rgba(40,15,0,0.22);
+  --card-bg: rgba(255,248,232,0.92);
+  --card-border: rgba(196,154,15,0.55);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ══════════════════════════════════════════
+   ANIMATED BACKGROUND CANVAS + BODY
+══════════════════════════════════════════ */
+body {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: var(--text-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #1a0a02;
+  position: relative;
+}
+
+/* Layered background */
+.bg-base {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, #3d1c06 0%, transparent 60%),
+    radial-gradient(ellipse 70% 70% at 80% 90%, #2e1204 0%, transparent 60%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, #f9edd3 0%, #f0d4a0 30%, #e0b876 60%, #c8903a 80%, #5a2800 100%);
+  animation: bgBreath 14s ease-in-out infinite alternate;
+}
+@keyframes bgBreath {
+  0%   { filter: brightness(1) saturate(1); }
+  50%  { filter: brightness(1.06) saturate(1.12); }
+  100% { filter: brightness(0.97) saturate(1.05); }
+}
+
+/* Noise texture overlay */
+.bg-noise {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* Glowing orbs */
+.orb {
+  position: fixed; border-radius: 50%; pointer-events: none; z-index: 1; mix-blend-mode: screen;
+  filter: blur(60px);
+}
+.orb-1 {
+  width: clamp(220px, 40vw, 500px); height: clamp(220px, 40vw, 500px);
+  background: radial-gradient(circle, rgba(255,210,80,0.18) 0%, transparent 70%);
+  top: -10%; left: -10%;
+  animation: orbDrift1 22s ease-in-out infinite alternate;
+}
+.orb-2 {
+  width: clamp(180px, 35vw, 450px); height: clamp(180px, 35vw, 450px);
+  background: radial-gradient(circle, rgba(255,140,40,0.12) 0%, transparent 70%);
+  bottom: -8%; right: -8%;
+  animation: orbDrift2 28s ease-in-out infinite alternate;
+}
+.orb-3 {
+  width: clamp(120px, 22vw, 300px); height: clamp(120px, 22vw, 300px);
+  background: radial-gradient(circle, rgba(220,180,50,0.1) 0%, transparent 70%);
+  top: 40%; left: 60%;
+  animation: orbDrift3 18s ease-in-out infinite alternate;
+}
+@keyframes orbDrift1 { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(8vw,12vh) scale(1.15)} }
+@keyframes orbDrift2 { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(-10vw,-8vh) scale(1.2)} }
+@keyframes orbDrift3 { 0%{transform:translate(0,0) scale(0.9)} 100%{transform:translate(-6vw,10vh) scale(1.1)} }
+
+/* Sparkle canvas */
+#sparkleCanvas {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+}
+
+/* Floating emoji particles */
+.floaters {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden;
+}
+.floater {
+  position: absolute; font-size: clamp(1rem, 3vw, 2.2rem);
+  animation: floaterRise linear infinite;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px rgba(255,210,80,0.4));
+}
+@keyframes floaterRise {
+  0%   { transform: translateY(100vh) rotate(0deg) scale(0.6); opacity: 0; }
+  8%   { opacity: 0.25; }
+  90%  { opacity: 0.18; }
+  100% { transform: translateY(-12vh) rotate(25deg) scale(1.1); opacity: 0; }
+}
+
+/* Gold dust particles */
+.dust-container {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden;
+}
+.dust {
+  position: absolute; width: 3px; height: 3px; border-radius: 50%;
+  background: var(--gold-shine); animation: dustFloat linear infinite;
+  opacity: 0;
+}
+@keyframes dustFloat {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  15%  { opacity: 0.7; }
+  85%  { opacity: 0.4; }
+  100% { transform: translateY(-70vh) translateX(30px); opacity: 0; }
+}
+
+/* ══════════════════════════════════════════
+   FLOATING WHATSAPP BUTTON
+══════════════════════════════════════════ */
+.wa-float {
+  position: fixed; bottom: 20px; right: 20px; z-index: 300;
+  display: flex; align-items: center; gap: 9px;
+  background: linear-gradient(135deg, #25d366 0%, #128c3e 100%);
+  color: #fff; padding: 12px 20px; border-radius: 50px;
+  text-decoration: none; font-family: 'Cinzel', serif;
+  font-size: clamp(0.78rem, 2vw, 0.9rem); font-weight: 600; letter-spacing: 0.5px;
+  box-shadow: 0 6px 24px rgba(37,211,102,0.5), 0 0 0 0 rgba(37,211,102,0.4);
+  transition: all 0.28s ease;
+  animation: waPulse 2.8s infinite;
+}
+.wa-float:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 36px rgba(37,211,102,0.65);
+  animation: none;
+}
+@keyframes waPulse {
+  0%,100% { box-shadow: 0 6px 24px rgba(37,211,102,0.5), 0 0 0 0 rgba(37,211,102,0.35); }
+  60%      { box-shadow: 0 6px 24px rgba(37,211,102,0.5), 0 0 0 12px rgba(37,211,102,0); }
+}
+.wa-float svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+/* ══════════════════════════════════════════
+   NAVBAR
+══════════════════════════════════════════ */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, rgba(26,8,2,0.97) 0%, rgba(60,20,5,0.97) 100%);
+  border-bottom: 1.5px solid var(--gold);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(245,215,110,0.15);
+  backdrop-filter: blur(12px);
+}
+.nav-logo {
+  font-family: 'Cinzel', serif; color: var(--gold-shine);
+  font-size: clamp(0.95rem, 3vw, 1.22rem); letter-spacing: 3px;
+  text-shadow: 0 0 20px rgba(245,215,110,0.5);
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-logo-crown { font-size: 1.2em; animation: crownGlow 3s ease-in-out infinite alternate; display: inline-block; }
+@keyframes crownGlow { 0%{filter:drop-shadow(0 0 4px rgba(255,220,80,0.4))} 100%{filter:drop-shadow(0 0 10px rgba(255,220,80,0.8))} }
+
+.hamburger {
+  display: flex; flex-direction: column; gap: 5px; cursor: pointer;
+  padding: 8px; border-radius: 8px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(196,154,15,0.4);
+  transition: all 0.22s;
+}
+.hamburger:hover { background: rgba(196,154,15,0.2); border-color: var(--gold-light); }
+.hamburger span {
+  display: block; width: 24px; height: 2px; background: var(--gold-shine);
+  border-radius: 2px; transition: all 0.32s cubic-bezier(0.4,0,0.2,1);
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ══════════════════════════════════════════
+   SIDE MENU
+══════════════════════════════════════════ */
+.side-menu {
+  position: fixed; top: 0; right: -100%; width: min(310px, 88vw); height: 100%;
+  z-index: 199; background: linear-gradient(160deg, #140600 0%, #2e1005 55%, #4a1e0a 100%);
+  border-left: 1.5px solid var(--gold); box-shadow: -10px 0 50px rgba(0,0,0,0.7);
+  transition: right 0.42s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column; padding: 95px 26px 40px; gap: 20px;
+  overflow-y: auto;
+}
+.side-menu.open { right: 0; }
+.side-menu h3 {
+  font-family: 'Cinzel', serif; color: var(--gold-shine); font-size: 1.1rem;
+  letter-spacing: 3px; text-align: center;
+}
+.side-menu p { font-family: 'Cormorant Garamond', serif; color: #e0cfa8; font-size: 0.96rem; text-align: center; line-height: 1.65; font-style: italic; }
+.divider { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.wa-menu-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(135deg, #25d366, #128c3e);
+  color: #fff; padding: 14px 22px; border-radius: 50px; text-decoration: none;
+  font-family: 'Cinzel', serif; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.8px;
+  box-shadow: 0 5px 22px rgba(37,211,102,0.4); transition: all 0.25s;
+}
+.wa-menu-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(37,211,102,0.6); }
+.wa-menu-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
+.contact-detail { color: #c8b595 !important; font-size: 0.87rem !important; }
+
+.overlay {
+  position: fixed; inset: 0; z-index: 198;
+  background: rgba(10,4,1,0.75);
+  opacity: 0; pointer-events: none; transition: opacity 0.38s;
+  backdrop-filter: blur(2px);
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+
+/* ══════════════════════════════════════════
+   PAGE LAYOUT
+══════════════════════════════════════════ */
+.page {
+  position: relative; z-index: 10;
+  max-width: 860px; margin: 0 auto;
+  padding: 82px 16px 72px;
+}
+
+/* ══════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════ */
+.brand-header {
+  text-align: center; padding: 36px 16px 24px;
+  position: relative; margin-bottom: 16px;
+}
+
+/* Halo ring behind brand */
+.brand-header::before {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -52%);
+  width: min(340px, 80vw); height: min(340px, 80vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,215,80,0.12) 0%, transparent 70%);
+  pointer-events: none;
+  animation: haloBreath 5s ease-in-out infinite alternate;
+}
+@keyframes haloBreath { 0%{opacity:0.6;transform:translate(-50%,-52%) scale(0.95)} 100%{opacity:1;transform:translate(-50%,-52%) scale(1.05)} }
+
+.crown-icon {
+  display: block; font-size: clamp(2rem, 6vw, 3rem); margin-bottom: 6px;
+  animation: crownFloat 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(245,215,110,0.7));
+}
+@keyframes crownFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-8px) scale(1.05)} }
+
+.brand-name {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.8rem, 13vw, 6rem);
+  font-weight: 900; letter-spacing: 0.1em; line-height: 0.95;
+  background: linear-gradient(180deg, #ffe88a 0%, #f5c842 30%, #c49a0f 65%, #8a6b0a 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  text-shadow: none;
+  position: relative;
+  animation: nameShimmer 6s ease-in-out infinite;
+}
+@keyframes nameShimmer {
+  0%,100% { filter: drop-shadow(0 4px 16px rgba(200,140,0,0.35)); }
+  50%      { filter: drop-shadow(0 4px 26px rgba(255,220,80,0.6)); }
+}
+.brand-name::after {
+  content: '';
+  display: block; margin: 10px auto 0;
+  width: 70%; height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+}
+
+.brand-badge {
+  display: inline-block; margin: 12px 0 0; padding: 6px 26px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light), var(--gold), var(--gold-dim));
+  background-size: 200% 100%; animation: badgeShine 4s linear infinite;
+  color: #fdf6e8; font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: clamp(0.85rem, 3vw, 1.05rem); letter-spacing: 4px; border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+@keyframes badgeShine { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+
+.ornament { color: var(--gold-light); font-size: 1rem; margin: 14px 0 8px; letter-spacing: 10px; opacity: 0.8; }
+
+.menu-title h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.4rem, 5.5vw, 2.6rem);
+  font-weight: 700; color: var(--brown-dark); letter-spacing: 0.06em; text-transform: uppercase;
+  text-shadow: 1px 2px 0 rgba(196,154,15,0.3), 0 4px 12px rgba(0,0,0,0.15);
+}
+.menu-subtitle {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: clamp(0.9rem, 3vw, 1.1rem); color: var(--brown-mid); display: block; margin-top: 5px;
+}
+.tagline {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: clamp(0.82rem, 2.6vw, 1rem); color: var(--gold);
+  margin: 8px 0 20px; letter-spacing: 1.5px;
+}
+
+/* ══════════════════════════════════════════
+   SECTION CARDS
+══════════════════════════════════════════ */
+.section-card {
+  background: linear-gradient(145deg, rgba(255,252,242,0.93) 0%, rgba(248,236,208,0.9) 100%);
+  border: 1px solid var(--card-border); border-radius: 16px;
+  padding: 26px 22px 30px; margin-bottom: 24px;
+  box-shadow:
+    0 10px 40px var(--shadow),
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    inset 0 -1px 0 rgba(196,154,15,0.1);
+  position: relative; overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.section-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold-dim) 15%, var(--gold-shine) 50%, var(--gold-dim) 85%, transparent 100%);
+  animation: topLineShine 4s linear infinite;
+  background-size: 200% 100%;
+}
+@keyframes topLineShine { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+.section-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196,154,15,0.25), transparent);
+}
+.section-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 55px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* Decorative corner */
+.section-card .corner { position: absolute; font-size: 1.4rem; opacity: 0.08; }
+.section-card .corner-tl { top: 10px; left: 12px; }
+.section-card .corner-br { bottom: 10px; right: 12px; transform: rotate(180deg); }
+
+.section-heading {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 18px; padding-bottom: 12px;
+  border-bottom: 1px solid rgba(196,154,15,0.28);
+}
+.section-heading .sec-emoji { font-size: clamp(1.4rem, 4vw, 1.8rem); }
+.section-heading h2 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.1rem, 3.8vw, 1.45rem);
+  font-weight: 700; color: var(--brown-dark); letter-spacing: 0.07em; text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   CAKE ITEMS
+══════════════════════════════════════════ */
+.cake-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
+.cake-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 8px; border-bottom: 1px dashed rgba(196,154,15,0.2);
+  border-radius: 8px; gap: 10px; cursor: default;
+  transition: background 0.22s, transform 0.22s;
+  position: relative;
+}
+.cake-item:last-child { border-bottom: none; }
+.cake-item:hover { background: rgba(196,154,15,0.07); transform: translateX(4px); }
+
+.cake-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: radial-gradient(circle, var(--gold-shine), var(--gold));
+  box-shadow: 0 0 6px rgba(196,154,15,0.5);
+  animation: dotPulse 3s ease-in-out infinite;
+}
+@keyframes dotPulse { 0%,100%{box-shadow:0 0 4px rgba(196,154,15,0.4)} 50%{box-shadow:0 0 10px rgba(255,220,80,0.7)} }
+
+.cake-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.95rem, 3vw, 1.12rem);
+  font-weight: 600; color: var(--text-dark); flex: 1;
+}
+.cake-price { display: flex; align-items: center; gap: 7px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+.weight {
+  font-family: 'Cormorant Garamond', serif; font-size: 0.84rem;
+  color: var(--text-mid); font-style: italic;
+  background: rgba(196,154,15,0.1); padding: 2px 9px; border-radius: 20px;
+  border: 1px solid rgba(196,154,15,0.2);
+}
+.price-sep { color: var(--gold); font-size: 0.8rem; opacity: 0.6; }
+.price-pill {
+  font-family: 'Cinzel', serif; font-size: clamp(0.88rem, 2.4vw, 0.98rem);
+  font-weight: 600; color: var(--brown-dark);
+  background: linear-gradient(135deg, rgba(255,252,242,0.9), rgba(240,225,185,0.8));
+  padding: 3px 12px; border-radius: 20px;
+  border: 1px solid rgba(196,154,15,0.35);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.price-pill.featured {
+  color: var(--brown-dark);
+  background: linear-gradient(135deg, #f5e87a, #d4a017);
+  border-color: var(--gold); font-weight: 700;
+  box-shadow: 0 2px 10px rgba(196,154,15,0.3);
+}
+.two-prices { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+.two-prices .price-div { color: var(--gold); font-size: 0.75rem; opacity: 0.7; }
+
+/* ══════════════════════════════════════════
+   INFO STRIP
+══════════════════════════════════════════ */
+.info-strip {
+  background: linear-gradient(135deg, var(--brown-dark) 0%, #3c1508 60%, #5a2000 100%);
+  border: 1.5px solid var(--gold); border-radius: 16px;
+  padding: 24px 20px; text-align: center;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,220,80,0.1) inset;
+  position: relative; overflow: hidden; margin-top: 16px;
+}
+.info-strip::before {
+  content: ''; position: absolute; top: -40%; left: -10%;
+  width: 120%; height: 80%; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,210,60,0.06) 0%, transparent 70%);
+  animation: stripGlow 7s ease-in-out infinite alternate;
+}
+@keyframes stripGlow { 0%{opacity:0.5;transform:scale(0.9)} 100%{opacity:1;transform:scale(1.1)} }
+.info-items { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 14px; }
+.info-item {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(0.84rem, 2.5vw, 1rem);
+  font-weight: 600; color: var(--gold-shine);
+  background: rgba(196,154,15,0.12); padding: 6px 14px; border-radius: 26px;
+  border: 1px solid rgba(196,154,15,0.22);
+  transition: background 0.2s, transform 0.2s;
+}
+.info-item:hover { background: rgba(196,154,15,0.22); transform: translateY(-2px); }
+.info-item .icon { font-size: 1.1rem; }
+.custom-note {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 0.92rem; color: #c8a870; margin-top: 8px;
+}
+
+/* ══════════════════════════════════════════
+   BOTTOM BANNER
+══════════════════════════════════════════ */
+.bottom-banner {
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light), var(--gold), var(--gold-dim));
+  background-size: 300% 100%; animation: bannerMove 5s linear infinite;
+  padding: 13px 16px; text-align: center;
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px;
+  margin-top: 24px; border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(196,154,15,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+@keyframes bannerMove { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+.bottom-banner span {
+  font-family: 'Cinzel', serif; font-size: clamp(0.7rem, 2.1vw, 0.86rem);
+  color: var(--brown-dark); font-weight: 700; letter-spacing: 0.4px;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.22); padding: 5px 14px; border-radius: 22px;
+  transition: background 0.2s;
+}
+.bottom-banner span:hover { background: rgba(255,255,255,0.35); }
+
+/* ══════════════════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════════════════ */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1), transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-left { opacity: 0; transform: translateX(-30px); transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1), transform 0.65s cubic-bezier(0.22,1,0.36,1); }
+.reveal-left.visible { opacity: 1; transform: none; }
+.reveal-right { opacity: 0; transform: translateX(30px); transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1), transform 0.65s cubic-bezier(0.22,1,0.36,1); }
+.reveal-right.visible { opacity: 1; transform: none; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media (min-width: 600px) {
+  .cake-grid { grid-template-columns: 1fr 1fr; column-gap: 16px; }
+  .cake-item { border-right: none; }
+}
+@media (min-width: 860px) {
+  .cake-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .page { padding: 88px 24px 80px; }
+  .section-card { padding: 30px 28px 34px; }
+}
+
+@media (max-width: 599px) {
+  .page { padding: 76px 12px 70px; }
+  .section-card { padding: 20px 16px 24px; margin-bottom: 18px; border-radius: 12px; }
+  .brand-header { padding: 28px 12px 18px; }
+  .brand-name { font-size: clamp(2.5rem, 14vw, 4.5rem); }
+  .menu-title h1 { font-size: clamp(1.25rem, 6vw, 2rem); }
+  .info-items { gap: 8px; }
+  .info-item { font-size: 0.84rem; padding: 5px 12px; }
+  .bottom-banner { flex-direction: column; }
+  .bottom-banner span { width: 100%; justify-content: center; }
+
+  .wa-float {
+    bottom: 14px; left: 50%; right: auto;
+    transform: translateX(-50%);
+    font-size: 0.82rem; padding: 11px 20px;
+  }
+  .wa-float:hover { transform: translateX(-50%) translateY(-4px); }
+}
+@media (max-width: 380px) {
+  .brand-name { font-size: clamp(2.2rem, 16vw, 3.8rem); }
+  .cake-name { font-size: 0.92rem; }
+  .price-pill { font-size: 0.85rem; padding: 3px 9px; }
+  .section-card { padding: 18px 14px 22px; }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .bg-base { filter: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── BACKGROUND LAYERS ── -->
+<div class="bg-base" aria-hidden="true"></div>
+<div class="bg-noise" aria-hidden="true"></div>
+<div class="orb orb-1" aria-hidden="true"></div>
+<div class="orb orb-2" aria-hidden="true"></div>
+<div class="orb orb-3" aria-hidden="true"></div>
+<canvas id="sparkleCanvas" aria-hidden="true"></canvas>
+<div class="floaters" id="floaters" aria-hidden="true"></div>
+<div class="dust-container" id="dustContainer" aria-hidden="true"></div>
+
+<!-- ── WHATSAPP FLOAT ── -->
+<a class="wa-float" id="waFloatBtn" href="#" target="_blank" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+  <span>Order Now</span>
+</a>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+  <div class="nav-logo">
+    <span class="nav-logo-crown">♛</span>
+    WOW CAKE
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- ── SIDE MENU ── -->
+<aside class="side-menu" id="sideMenu" aria-hidden="true">
+  <h3>✦ CONTACT ✦</h3>
+  <div class="divider"></div>
+  <p>Custom orders, bulk & party enquiries welcome!</p>
+  <div class="divider"></div>
+  <a class="wa-menu-btn" id="waBtn" href="#" target="_blank">
+    <svg viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Chat on WhatsApp
+  </a>
+  <p class="contact-detail">Quick replies • Order anytime</p>
+  <div class="divider"></div>
+  <p class="contact-detail" style="margin-top:4px"><br><span style="font-size:0.83rem;display:block;margin-top:4px">Custom designs • Advance booking</span></p>
+</aside>
+
+<!-- ══ MAIN PAGE ══ -->
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="brand-header reveal">
+    <span class="crown-icon" aria-hidden="true">♛</span>
+    <div class="brand-name">WOW CAKE</div>
+    <div class="brand-badge">Artisan Cakes</div>
+    <div class="ornament" aria-hidden="true">✦ ✧ ✦</div>
+    <div class="menu-title">
+      <h1>Fresh Cream Cakes<span class="menu-subtitle">100% Eggless</span></h1>
+    </div>
+    <p class="tagline">Premium • Handcrafted • Celebrations</p>
+  </header>
+
+  <!-- FRUIT CAKES -->
+  <section class="section-card reveal" style="transition-delay:0.1s">
+    <span class="corner corner-tl" aria-hidden="true">❧</span>
+    <span class="corner corner-br" aria-hidden="true">❧</span>
+    <div class="section-heading">
+      <span class="sec-emoji">🍍</span>
+      <h2>Fruit Collection</h2>
+    </div>
+    <div class="cake-grid">
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Pineapple</span><div class="cake-price"><span class="weight">½ Kg</span><span class="price-sep">|</span><span class="price-pill">₹500</span></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Strawberry</span><div class="cake-price"><span class="weight">½ Kg</span><span class="price-sep">|</span><span class="price-pill">₹500</span></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Mango</span><div class="cake-price"><span class="weight">½ Kg</span><span class="price-sep">|</span><span class="price-pill">₹500</span></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Kiwi</span><div class="cake-price"><span class="weight">½ Kg</span><span class="price-sep">|</span><span class="price-pill">₹500</span></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Orange</span><div class="cake-price"><span class="weight">½ Kg</span><span class="price-sep">|</span><span class="price-pill">₹500</span></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Green Apple</span><div class="cake-price"><span class="weight">½ Kg</span><span class="price-sep">|</span><span class="price-pill">₹500</span></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Vanilla</span><div class="cake-price"><span class="weight">½ Kg</span><span class="price-sep">|</span><span class="price-pill">₹500</span></div></div>
+    </div>
+  </section>
+
+  <!-- SIGNATURE SPECIALS -->
+  <section class="section-card reveal" style="transition-delay:0.2s">
+    <span class="corner corner-tl" aria-hidden="true">❧</span>
+    <span class="corner corner-br" aria-hidden="true">❧</span>
+    <div class="section-heading">
+      <span class="sec-emoji">🍫</span>
+      <h2>Signature Specials</h2>
+    </div>
+    <div class="cake-grid">
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Butterscotch</span><div class="cake-price"><span class="weight">½–1 Kg</span><div class="two-prices"><span class="price-pill">₹550</span><span class="price-div">|</span><span class="price-pill">₹1000</span></div></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Blueberry</span><div class="cake-price"><span class="weight">½–1 Kg</span><div class="two-prices"><span class="price-pill">₹550</span><span class="price-div">|</span><span class="price-pill">₹1000</span></div></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Chocolate Truffle</span><div class="cake-price"><span class="weight">½–1 Kg</span><div class="two-prices"><span class="price-pill">₹600</span><span class="price-div">|</span><span class="price-pill">₹1100</span></div></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Choco Chips</span><div class="cake-price"><span class="weight">½–1 Kg</span><div class="two-prices"><span class="price-pill">₹600</span><span class="price-div">|</span><span class="price-pill">₹1100</span></div></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Black Forest</span><div class="cake-price"><span class="weight">½–1 Kg</span><div class="two-prices"><span class="price-pill">₹600</span><span class="price-div">|</span><span class="price-pill">₹1100</span></div></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">White Forest</span><div class="cake-price"><span class="weight">½–1 Kg</span><div class="two-prices"><span class="price-pill">₹600</span><span class="price-div">|</span><span class="price-pill">₹1100</span></div></div></div>
+      <div class="cake-item"><div class="cake-dot"></div><span class="cake-name">Red Velvet</span><div class="cake-price"><span class="weight">½–1 Kg</span><div class="two-prices"><span class="price-pill featured">₹750</span><span class="price-div">|</span><span class="price-pill featured">₹1400</span></div></div></div>
+    </div>
+  </section>
+
+  <!-- INFO STRIP -->
+  <div class="info-strip reveal" style="transition-delay:0.3s">
+    <div class="info-items">
+      <div class="info-item"><span class="icon">🎨</span>Custom Designs</div>
+      <div class="info-item"><span class="icon">🎁</span>Bulk Orders</div>
+      <div class="info-item"><span class="icon">⏰</span>24h Booking</div>
+    </div>
+    <div class="divider" style="margin:10px 0"></div>
+    <p class="custom-note">✦ Custom design charges apply In addtion to above price ✦</p>
+  </div>
+
+  <!-- BOTTOM BANNER -->
+  <div class="bottom-banner reveal" style="transition-delay:0.4s">
+    <span>✨ Custom</span>
+    <span>🎉 Party Orders</span>
+    <span>🚚 Delivery</span>
+    <span>💬 WhatsApp</span>
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+/* ═══════════════════════════════
+   NAV & SIDE MENU
+═══════════════════════════════ */
+const ham = document.getElementById('hamburger');
+const menu = document.getElementById('sideMenu');
+const overlay = document.getElementById('overlay');
+const openMenu = () => { ham.classList.add('open'); ham.setAttribute('aria-expanded','true'); menu.classList.add('open'); menu.setAttribute('aria-hidden','false'); overlay.classList.add('open'); document.body.style.overflow='hidden'; };
+const closeMenu = () => { ham.classList.remove('open'); ham.setAttribute('aria-expanded','false'); menu.classList.remove('open'); menu.setAttribute('aria-hidden','true'); overlay.classList.remove('open'); document.body.style.overflow=''; };
+ham.addEventListener('click', e => { e.stopPropagation(); menu.classList.contains('open') ? closeMenu() : openMenu(); });
+overlay.addEventListener('click', closeMenu);
+menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeMenu(); });
+
+/* ═══════════════════════════════
+   WHATSAPP LINKS
+═══════════════════════════════ */
+const phone = '918974606456', msg = encodeURIComponent('Hello Wow Cake');
+const waLink = `https://wa.me/${phone}?text=${msg}`;
+document.getElementById('waBtn').href = waLink;
+document.getElementById('waFloatBtn').href = waLink;
+
+/* ═══════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════ */
+const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+}, { threshold: 0.1 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+/* ═══════════════════════════════
+   SPARKLE CANVAS
+═══════════════════════════════ */
+(function(){
+  const canvas = document.getElementById('sparkleCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, sparks = [];
+
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+
+  class Spark {
+    constructor(){
+      this.reset();
+    }
+    reset(){
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.size = Math.random() * 2.5 + 0.5;
+      this.alpha = 0;
+      this.maxAlpha = Math.random() * 0.6 + 0.15;
+      this.speedX = (Math.random() - 0.5) * 0.4;
+      this.speedY = -Math.random() * 0.6 - 0.2;
+      this.life = 0;
+      this.maxLife = Math.random() * 180 + 80;
+      this.color = Math.random() < 0.7 ? '#f5d76e' : (Math.random() < 0.5 ? '#ffffff' : '#ffaa30');
+    }
+    update(){
+      this.life++;
+      const p = this.life / this.maxLife;
+      this.alpha = p < 0.15 ? (p/0.15) * this.maxAlpha : p > 0.7 ? ((1-p)/0.3) * this.maxAlpha : this.maxAlpha;
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if(this.life >= this.maxLife) this.reset();
+    }
+    draw(){
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = this.color;
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = this.size * 3;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      // Star shape for some
+      if(this.size > 1.5) {
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 0.6;
+        ctx.globalAlpha = this.alpha * 0.6;
+        for(let i=0;i<4;i++){
+          const a = (i/4)*Math.PI*2;
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(this.x + Math.cos(a)*this.size*2.5, this.y + Math.sin(a)*this.size*2.5);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  // Populate
+  for(let i=0;i<90;i++){
+    const s = new Spark();
+    s.life = Math.random() * s.maxLife; // stagger starts
+    sparks.push(s);
+  }
+
+  let raf;
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    sparks.forEach(s => { s.update(); s.draw(); });
+    raf = requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Pause when hidden
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) cancelAnimationFrame(raf);
+    else loop();
+  });
+
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    cancelAnimationFrame(raf);
+    canvas.style.display='none';
+  }
+})();
+
+/* ═══════════════════════════════
+   FLOATING EMOJIS
+═══════════════════════════════ */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.getElementById('floaters');
+  const emojis = ['🎂','🧁','🍓','🍫','🎀','✨','🍰','🌸','🍬','⭐','💛','🎁'];
+  const count = window.innerWidth < 480 ? 7 : 14;
+
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'floater';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    const left = Math.random()*96+2;
+    const dur  = Math.random()*18+14;
+    const delay= -Math.random()*dur;
+    const size = (Math.random()*1.2+0.7);
+    el.style.cssText = `left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:${delay}s`;
+    container.appendChild(el);
+  }
+})();
+
+/* ═══════════════════════════════
+   GOLD DUST PARTICLES
+═══════════════════════════════ */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.getElementById('dustContainer');
+  const count = window.innerWidth < 480 ? 18 : 36;
+
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'dust';
+    const left = Math.random()*100;
+    const top  = Math.random()*100+50;
+    const dur  = Math.random()*12+8;
+    const delay= -Math.random()*dur;
+    const size = Math.random()*3+1;
+    const hue  = Math.random()*30+35;
+    el.style.cssText = `left:${left}%;top:${top}%;width:${size}px;height:${size}px;background:hsl(${hue},90%,68%);animation-duration:${dur}s;animation-delay:${delay}s`;
+    container.appendChild(el);
+  }
+})();
+</script>
+</body>
+</html>
